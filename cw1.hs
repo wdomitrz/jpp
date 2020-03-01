@@ -105,15 +105,39 @@ positions c (x : xs) | c == x    = 1 : rest
 
 -- 9.
 showInt :: Int -> String
-showInt 0 = "0"
+showInt 0         = "0"
 showInt n | n < 0 = '-' : showInt (-n)
-showInt n = reverse $ go n
-    where go :: Int -> String
-          go 0 = ""
-          go n | n < 0 = '-' : go (-n)
-          go n = chr (ord '0' + n `mod` 10) : go (n `div` 10)
+showInt n         = reverse $ go n
+  where
+    go :: Int -> String
+    go 0         = ""
+    go n | n < 0 = '-' : go (-n)
+    go n         = chr (ord '0' + n `mod` 10) : go (n `div` 10)
+
+showIntLst :: [Int] -> String
+showIntLst []       = ""
+showIntLst [x     ] = showInt x
+showIntLst (x : xs) = showInt x ++ ", " ++ showIntLst xs
+
+showLst :: (a -> String) -> [a] -> String
+showLst _ []       = ""
+showLst f [x     ] = f x
+showLst f (x : xs) = f x ++ ", " ++ showLst f xs
 
 -- 10.
+divide :: Int -> String -> String
+divide n = go' "\n" . concatMap (\v -> if null v then [[]] else go n v) . lines
+  where
+    go :: Int -> [a] -> [[a]]
+    go n [] = []
+    go n l  = take n l : go n (drop n l)
+    go' :: [a] -> [[a]] -> [a]
+    go' _ []       = []
+    go' x (y : ys) = y ++ x ++ go' x ys
+
+main :: IO ()
+main = interact $ divide 3
+
 -- 11.
 -- a.
 incAll :: [[Int]] -> [[Int]]
