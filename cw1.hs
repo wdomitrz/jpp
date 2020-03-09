@@ -2,35 +2,36 @@ import           Control.Arrow                  ( first )
 import           Data.Char
 
 -- 1.
-head1 :: [a] -> a
-head1 (x : xs) = x
-head1 l        = head l
+head' :: [a] -> a
+head' (x : xs) = x
+head' l        = head l
 
-tail1 :: [a] -> [a]
-tail1 []       = []
-tail1 (_ : xs) = xs
+tail' :: [a] -> [a]
+tail' []       = undefined
+tail' (_ : xs) = xs
 
 (+++) :: [a] -> [a] -> [a]
 (+++) xs ys = foldr (:) ys xs
 
-take1 :: Int -> [a] -> [a]
-take1 _ []         = []
-take1 n _ | n <= 0 = []
-take1 n (x : xs)   = x : take1 (n - 1) xs
+take' :: Int -> [a] -> [a]
+take' _ []         = []
+take' n _ | n <= 0 = []
+take' n (x : xs)   = x : take' (n - 1) xs
 
-drop1 :: Int -> [a] -> [a]
-drop1 _ []          = []
-drop1 n xs | n <= 0 = xs
-drop1 n (x : xs)    = drop1 (n - 1) xs
+drop' :: Int -> [a] -> [a]
+drop' _ []          = []
+drop' n xs | n <= 0 = xs
+drop' n (x : xs)    = drop' (n - 1) xs
 
-filter1 :: (a -> Bool) -> [a] -> [a]
-filter1 _ [] = []
-filter1 f (x : xs) | f x       = x : filter1 f xs
-                   | otherwise = filter1 f xs
+filter' :: (a -> Bool) -> [a] -> [a]
+filter' _ [] = []
+filter' f (x : xs) | f x       = x : ys
+                   | otherwise = ys
+    where ys = filter' f xs
 
-map1 :: (a -> b) -> [a] -> [b]
-map1 _ []       = []
-map1 f (x : xs) = f x : map1 f xs
+map' :: (a -> b) -> [a] -> [b]
+map' _ []       = []
+map' f (x : xs) = f x : map' f xs
 
 -- 2.
 inits :: [a] -> [[a]]
@@ -48,8 +49,22 @@ permutations [] = [[]]
 permutations (x : xs) =
     [ insertAt n x ys | n <- [0 .. length xs], ys <- permutations xs ]
   where
+    insertAt :: Int -> a -> [a] -> [a]
     insertAt 0 x ys       = x : ys
     insertAt n x (y : ys) = y : insertAt (n - 1) x ys
+
+permutations' :: Eq a => [a] -> [[a]]
+permutations' [] = [[]]
+permutations' xs = [ x : ys | x <- xs, ys <- permutations' (filter (/= x) xs) ]
+
+permutations'' :: [a] -> [[a]]
+permutations'' [] = [[]]
+permutations'' xs = go $ partitions xs
+  where
+    go :: [([a], [a])] -> [[a]]
+    go []                  = []
+    go ((_ , []    ) : ps) = go ps
+    go ((ys, z : zs) : ps) = map (z :) (permutations'' (ys ++ zs)) ++ go ps
 
 -- 5.
 nub :: Eq a => [a] -> [a]
@@ -90,18 +105,40 @@ factorioal n = go n 1
 
 reverse' :: [a] -> [a]
 reverse' = foldr (:) []
+reverse'' :: [a] -> [a]
+reverse'' = go []  where
+    go :: [a] -> [a] -> [a]
+    go ys []       = ys
+    go ys (z : zs) = go (z : ys) zs
 
 -- 8.
 indexOf :: Char -> String -> Maybe Int
-indexOf _ [] = Nothing
-indexOf c (x : xs) | c == x    = Just 1
-                   | otherwise = fmap (1 +) (indexOf c xs)
+indexOf x = go 0
+  where
+    go :: Int -> String -> Maybe Int
+    go _ [] = Nothing
+    go k (y : ys) | x == y    = Just k
+                  | otherwise = go (k + 1) ys
 
 positions :: Char -> String -> [Int]
-positions _ [] = []
-positions c (x : xs) | c == x    = 1 : rest
-                     | otherwise = rest
-    where rest = map (1 +) $ positions c xs
+positions x = go 1
+  where
+    go :: Int -> String -> [Int]
+    go _ [] = []
+    go n (y : xs) | x == y    = n : rest
+                  | otherwise = rest
+        where rest = go (n + 1) xs
+
+positions' :: Eq a => a -> [a] -> [Int]
+positions' x xs = reverse $ go 0 xs []
+  where
+    go _ []       ps = ps
+    go n (y : ys) ps = go (n + 1) ys r where r = if x == y then n : ps else ps
+
+positions'' :: Eq a => a -> [a] -> [Int]
+positions'' x = reverse . snd . foldl
+    (\(n, ps) y -> (n + 1, if x == y then n : ps else ps))
+    (1, [])
 
 -- 9.
 showInt :: Int -> String
@@ -126,14 +163,11 @@ showLst f (x : xs) = f x ++ ", " ++ showLst f xs
 
 -- 10.
 divide :: Int -> String -> String
-divide n = go' "\n" . concatMap (\v -> if null v then [[]] else go n v) . lines
+divide n = unlines . concatMap (\v -> if null v then [[]] else go n v) . lines
   where
     go :: Int -> [a] -> [[a]]
     go n [] = []
     go n l  = take n l : go n (drop n l)
-    go' :: [a] -> [[a]] -> [a]
-    go' _ []       = []
-    go' x (y : ys) = y ++ x ++ go' x ys
 
 main :: IO ()
 main = interact $ divide 3
@@ -141,7 +175,7 @@ main = interact $ divide 3
 -- 11.
 -- a.
 incAll :: [[Int]] -> [[Int]]
-incAll = map (map (1 +))
+incAll = map $ map (1 +)
 
 -- b.
 factorial' :: Int -> Int
@@ -149,6 +183,14 @@ factorial' n = foldr (*) 1 [1 .. n]
 
 concat' :: [[a]] -> [a]
 concat' = foldr (++) []
+concat'' :: [[a]] -> [a]
+concat'' = foldl (++) []
+
+-- test using
+-- :set +s
+-- :unset +s
 
 -- c.
 -- ad 5.
+asd :: [a] -> [a]
+asd (x:xs) = []
