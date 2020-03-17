@@ -3,8 +3,8 @@ import           Data.Char
 
 -- 1.
 head' :: [a] -> a
-head' (x : xs) = x
-head' l        = head l
+head' (x : _) = x
+head' l       = head l
 
 tail' :: [a] -> [a]
 tail' []       = undefined
@@ -21,7 +21,7 @@ take' n (x : xs)   = x : take' (n - 1) xs
 drop' :: Int -> [a] -> [a]
 drop' _ []          = []
 drop' n xs | n <= 0 = xs
-drop' n (x : xs)    = drop' (n - 1) xs
+drop' n (_ : xs)    = drop' (n - 1) xs
 
 filter' :: (a -> Bool) -> [a] -> [a]
 filter' _ [] = []
@@ -47,11 +47,11 @@ partitions (x : xs) = ([], x : xs) : map (first (x :)) (partitions xs)
 permutations :: [a] -> [[a]]
 permutations [] = [[]]
 permutations (x : xs) =
-    [ insertAt n x ys | n <- [0 .. length xs], ys <- permutations xs ]
+    [ insertAt n ys | n <- [0 .. length xs], ys <- permutations xs ]
   where
-    insertAt :: Int -> a -> [a] -> [a]
-    insertAt 0 x ys       = x : ys
-    insertAt n x (y : ys) = y : insertAt (n - 1) x ys
+    insertAt 0 ys       = x : ys
+    insertAt n (y : ys) = y : insertAt (n - 1) ys
+    insertAt _ []       = undefined
 
 permutations' :: Eq a => [a] -> [[a]]
 permutations' [] = [[]]
@@ -79,26 +79,26 @@ triples n = [ (x, y, z) | x <- [1 .. n], y <- [1 .. n], z <- [1 .. n] ]
 triads :: Int -> [(Int, Int, Int)]
 triads n =
     [ (x, y, z)
-    | x <- [1 .. n]
-    , y <- [1 .. n]
+    | (x, y, z) <- triples n
     , x <= y
-    , z <- [1 .. n]
-    , x ^ 2 + y ^ 2 == z ^ 2
+    , x ^ (2 :: Int) + y ^ (2 :: Int) == z ^ (2 :: Int)
     , gcd x y == 1
     ]
 
 -- 7.
 primes :: [Int]
-primes = go [2 ..] where go (x : xs) = x : go (filter ((0 /=) . (`mod` x)) xs)
+primes = go [2 ..]  where
+    go (x : xs) = x : go (filter ((0 /=) . (`mod` x)) xs)
+    go []       = undefined
 
 fibs :: Int -> Int
-fibs n = go n 1 1
+fibs = flip (`go` 1) 1
   where
     go 0 x _ = x
     go n x y = go (n - 1) y (x + y)
 
 factorioal :: Int -> Int
-factorioal n = go n 1
+factorioal = flip go 1
   where
     go 0 acc = acc
     go n acc = go (n - 1) (n * acc)
@@ -147,9 +147,9 @@ showInt n | n < 0 = '-' : showInt (-n)
 showInt n         = reverse $ go n
   where
     go :: Int -> String
-    go 0         = ""
-    go n | n < 0 = '-' : go (-n)
-    go n         = chr (ord '0' + n `mod` 10) : go (n `div` 10)
+    go 0          = ""
+    go n' | n < 0 = '-' : go (-n')
+    go n'         = chr (ord '0' + n' `mod` 10) : go (n' `div` 10)
 
 showIntLst :: [Int] -> String
 showIntLst []       = ""
@@ -163,11 +163,11 @@ showLst f (x : xs) = f x ++ ", " ++ showLst f xs
 
 -- 10.
 divide :: Int -> String -> String
-divide n = unlines . concatMap (\v -> if null v then [[]] else go n v) . lines
+divide n = unlines . concatMap (\v -> if null v then [[]] else go v) . lines
   where
-    go :: Int -> [a] -> [[a]]
-    go n [] = []
-    go n l  = take n l : go n (drop n l)
+    go :: [a] -> [[a]]
+    go [] = []
+    go l  = take n l : go (drop n l)
 
 main :: IO ()
 main = interact $ divide 3
@@ -180,6 +180,8 @@ incAll = map $ map (1 +)
 -- b.
 factorial' :: Int -> Int
 factorial' n = foldr (*) 1 [1 .. n]
+factorial'' :: Int -> Int
+factorial'' n = product [1 .. n]
 
 concat' :: [[a]] -> [a]
 concat' = foldr (++) []
@@ -192,5 +194,3 @@ concat'' = foldl (++) []
 
 -- c.
 -- ad 5.
-asd :: [a] -> [a]
-asd (x:xs) = []
