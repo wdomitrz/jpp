@@ -169,8 +169,8 @@ divide n = unlines . concatMap (\v -> if null v then [[]] else go v) . lines
     go [] = []
     go l  = take n l : go (drop n l)
 
-main :: IO ()
-main = interact $ divide 3
+main10 :: IO ()
+main10 = interact $ divide 3
 
 -- 11.
 -- a.
