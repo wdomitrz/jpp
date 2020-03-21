@@ -1,0 +1,3 @@
+[submodule "z1"]
+	path = z1
+	url = github:wdomitrz/jpp-z1
