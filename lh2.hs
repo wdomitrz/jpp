@@ -1,13 +1,13 @@
+module Tests where -- required by doctest
 import           Data.Char                      ( isDigit )
 import           Text.Read                      ( readEither )
 
 -- 1.:q
-
-foldMaybe :: c -> (a -> c) -> Maybe a -> c
-foldMaybe x _ Nothing  = x
-foldMaybe _ f (Just x) = f x
+elimMaybe :: c -> (a -> c) -> Maybe a -> c
+elimMaybe x _ Nothing  = x
+elimMaybe _ f (Just x) = f x
 fromMaybe :: a -> Maybe a -> a
-fromMaybe = flip foldMaybe id
+fromMaybe = flip elimMaybe id
 maybeHead :: [a] -> Maybe a
 maybeHead = foldr (const . Just) Nothing
 foldEither :: (a -> c) -> (b -> c) -> Either a b -> c
@@ -24,22 +24,31 @@ reverseRight :: Either e [a] -> Either e [a]
 reverseRight = fmap reverse
 -- 2.
 -- a.
+-- | readInts
+-- >>> readInts "1 23 456 7.8 abc 9"
+-- [1,23,456,9]
+-- >>> readInts "foo"
+-- []
 readInts :: String -> [Int]
 readInts = map read . filter (all isDigit) . words
 
 -- b.
+-- | readInts2
+-- >>> readInts2  "1 23 456 foo 9"
+-- Left "Not a number: foo"
+-- >>> readInts2  "1 23 456"
+-- Right [1,23,456]
 readInts2 :: String -> Either String [Int]
 readInts2 = mapM readWithError . words
   where
     readWithError :: String -> Either String Int
     readWithError = go <*> readEither
     go :: String -> Either String Int -> Either String Int
-    go = flip mapEither id . (const . ("Not an integer: " ++))
+    go = flip mapEither id . (const . ("Not a number: " ++))
 
 -- c.
 sumInts :: String -> String
 sumInts = either id (show . sum) . readInts2
-
 
 main2c :: IO ()
 main2c = interact sumInts
@@ -125,6 +134,9 @@ instance Num Exp where
     signum      = undefined
     fromInteger = EInt . fromInteger
 
+-- | simpl
+-- >>> simpl (0 * (EVar "x") + 1 * (EVar "y"))
+-- y
 simpl :: Exp -> Exp
 simpl = go' . go
   where
@@ -156,6 +168,7 @@ simpl = go' . go
     go' (EMul _        (EInt 0)) = EInt 0
     go' x                        = x
 
+-- d.
 deriv :: String -> Exp -> Exp
 deriv s = simpl . go False . simpl
   where
@@ -178,6 +191,9 @@ instance Functor (Either' e) where
     fmap f (Right' x) = Right' (f x)
 
 -- b.
+-- | Functor Tree
+-- >>> fmap (+1) $ Node 1 Empty Empty
+-- 2 () ()
 instance Functor Tree where
     fmap _ Empty          = Empty
     fmap f (Node x t1 t2) = Node (f x) (fmap f t1) (fmap f t2)
@@ -209,5 +225,8 @@ instance Applicative' Maybe where
     (<**>) _        Nothing  = Nothing
     (<**>) (Just f) (Just x) = Just $ f x
 
+-- | Applicative' []
+-- >>> [(+1),(*2)] <**> [1,2]
+-- [2,3,2,4]
 instance Applicative'  [] where
     (<**>) = flip (flip foldr [] . ((++) .) . flip fmap)

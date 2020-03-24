@@ -1,3 +1,4 @@
+module Tests where -- required by doctest
 import           Text.Read                      ( readEither )
 import           System.Environment             ( getArgs )
 import           Control.Monad                  ( when
@@ -11,6 +12,11 @@ import           Data.Char                      ( isHexDigit
 swapEither :: Either e a -> Either a e
 swapEither = either Right Left
 
+-- | readInts2
+-- >>> readInts2 "1 23 456 abc 9"
+-- Left "Not a number: abc"
+-- >>> readInts2' "1 23 456 abc 9"
+-- Left "Not a number: abc"
 readInts2 :: String -> Either String [Int]
 readInts2 = foldr go (return []) . words
   where
@@ -36,8 +42,15 @@ readInts2' = foldr go (return []) . words
             _ <- swapEither x
             return ("Not a number: " ++ s)
 
-
-
+-- | sumInts
+-- >>> sumInts "1 23 456 abc 9"
+-- "Not a number: abc"
+-- >>> sumInts "1 2 3"
+-- "6"
+-- >>> sumInts' "1 23 456 abc 9"
+-- "Not a number: abc"
+-- >>> sumInts' "1 2 3"
+-- "6"
 sumInts :: String -> String
 sumInts = either id (show . sum) . readInts2
 

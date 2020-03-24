@@ -1,81 +1,15 @@
+module Tests where -- required by doctest
 import           Control.Arrow                  ( first )
 import           Data.Char
 
 -- 1.
-head' :: [a] -> a
-head' (x : _) = x
-head' l       = head l
-
-tail' :: [a] -> [a]
-tail' []       = undefined
-tail' (_ : xs) = xs
-
-(+++) :: [a] -> [a] -> [a]
-(+++) xs ys = foldr (:) ys xs
-
-take' :: Int -> [a] -> [a]
-take' _ []         = []
-take' n _ | n <= 0 = []
-take' n (x : xs)   = x : take' (n - 1) xs
-
-drop' :: Int -> [a] -> [a]
-drop' _ []          = []
-drop' n xs | n <= 0 = xs
-drop' n (_ : xs)    = drop' (n - 1) xs
-
-filter' :: (a -> Bool) -> [a] -> [a]
-filter' _ [] = []
-filter' f (x : xs) | f x       = x : ys
-                   | otherwise = ys
-    where ys = filter' f xs
-
-map' :: (a -> b) -> [a] -> [b]
-map' _ []       = []
-map' f (x : xs) = f x : map' f xs
-
--- 2.
-inits :: [a] -> [[a]]
-inits []       = [[]]
-inits (x : xs) = [] : map (x :) (inits xs)
-
--- 3.
-partitions :: [a] -> [([a], [a])]
-partitions []       = [([], [])]
-partitions (x : xs) = ([], x : xs) : map (first (x :)) (partitions xs)
-
--- 4.
-permutations :: [a] -> [[a]]
-permutations [] = [[]]
-permutations (x : xs) =
-    [ insertAt n ys | n <- [0 .. length xs], ys <- permutations xs ]
-  where
-    insertAt 0 ys       = x : ys
-    insertAt n (y : ys) = y : insertAt (n - 1) ys
-    insertAt _ []       = undefined
-
-permutations' :: Eq a => [a] -> [[a]]
-permutations' [] = [[]]
-permutations' xs = [ x : ys | x <- xs, ys <- permutations' (filter (/= x) xs) ]
-
-permutations'' :: [a] -> [[a]]
-permutations'' [] = [[]]
-permutations'' xs = go $ partitions xs
-  where
-    go :: [([a], [a])] -> [[a]]
-    go []                  = []
-    go ((_ , []    ) : ps) = go ps
-    go ((ys, z : zs) : ps) = map (z :) (permutations'' (ys ++ zs)) ++ go ps
-
--- 5.
-nub :: Eq a => [a] -> [a]
-nub []       = []
-nub (x : xs) = x : nub (filter (x /=) xs)
-
--- 5.
 triples :: Int -> [(Int, Int, Int)]
 triples n = [ (x, y, z) | x <- [1 .. n], y <- [1 .. n], z <- [1 .. n] ]
 
--- 6.
+-- 2.
+-- | triads
+-- >>> triads 20
+-- [(3,4,5),(5,12,13),(8,15,17)]
 triads :: Int -> [(Int, Int, Int)]
 triads n =
     [ (x, y, z)
@@ -85,33 +19,52 @@ triads n =
     , gcd x y == 1
     ]
 
--- 7.
+-- 3.
+-- | primes
+-- >>> take 6 primes
+-- [2,3,5,7,11,13]
 primes :: [Int]
 primes = go [2 ..]  where
     go (x : xs) = x : go (filter ((0 /=) . (`mod` x)) xs)
     go []       = undefined
 
+-- | fibs
+-- >>> fibs 7
+-- 21
 fibs :: Int -> Int
 fibs = flip (`go` 1) 1
   where
     go 0 x _ = x
     go n x y = go (n - 1) y (x + y)
 
-factorioal :: Int -> Int
-factorioal = flip go 1
+-- | factorial
+-- >>> factorial 5
+-- 120
+factorial :: Int -> Int
+factorial = flip go 1
   where
     go 0 acc = acc
     go n acc = go (n - 1) (n * acc)
 
+-- | reverse
+-- >>> reverse' [1, 2, 3]
+-- [3,2,1]
+-- >>> reverse'' [1, 2, 3]
+-- [3,2,1]
 reverse' :: [a] -> [a]
-reverse' = foldr (:) []
+reverse' = foldl (flip (:)) []
 reverse'' :: [a] -> [a]
 reverse'' = go []  where
     go :: [a] -> [a] -> [a]
     go ys []       = ys
     go ys (z : zs) = go (z : ys) zs
 
--- 8.
+-- 4.
+-- | indexOf
+-- >>> indexOf 'a' "Ala"
+-- Just 2
+-- >>> indexOf 'b' "Ala"
+-- Nothing
 indexOf :: Char -> String -> Maybe Int
 indexOf x = go 0
   where
@@ -120,8 +73,21 @@ indexOf x = go 0
     go k (y : ys) | x == y    = Just k
                   | otherwise = go (k + 1) ys
 
+-- | positions
+-- >>> positions 'a' "Ala ma kota"
+-- [2,5,10]
+-- >>> positions 'b' "Ala ma kota"
+-- []
+-- >>> positions' 'a' "Ala ma kota"
+-- [2,5,10]
+-- >>> positions' 'b' "Ala ma kota"
+-- []
+-- >>> positions'' 'a' "Ala ma kota"
+-- [2,5,10]
+-- >>> positions'' 'b' "Ala ma kota"
+-- []
 positions :: Char -> String -> [Int]
-positions x = go 1
+positions x = go 0
   where
     go :: Int -> String -> [Int]
     go _ [] = []
@@ -138,9 +104,70 @@ positions' x xs = reverse $ go 0 xs []
 positions'' :: Eq a => a -> [a] -> [Int]
 positions'' x = reverse . snd . foldl
     (\(n, ps) y -> (n + 1, if x == y then n : ps else ps))
-    (1, [])
+    (0, [])
 
--- 9.
+-- 5.
+-- a.
+-- | incAll
+-- >>> incAll [[],[1],[1,2],[1,2,3]]
+-- [[],[2],[2,3],[2,3,4]]
+incAll :: [[Int]] -> [[Int]]
+incAll = map $ map (1 +)
+
+-- b.
+-- | factorial'
+-- >>> factorial' 5
+-- 120
+-- >>> factorial'' 5
+-- 120
+factorial' :: Int -> Int
+factorial' n = foldr (*) 1 [1 .. n]
+factorial'' :: Int -> Int
+factorial'' n = product [1 .. n]
+
+-- | concat'
+-- >>> concat' [[1,2],[3],[4,5]]
+-- [1,2,3,4,5]
+concat' :: [[a]] -> [a]
+concat' = foldr (++) []
+
+-- | maximum'
+-- >>> maximum' [1, 2, -3]
+-- 2
+maximum' :: [Int] -> Int
+maximum' []       = error "maximum': empty list"
+maximum' (x : xs) = foldl max x xs
+
+-- | minimum'
+-- >>> minimum' [-1, 2, -3]
+-- -3
+minimum' :: [Int] -> Int
+minimum' []       = error "minimum': empty list"
+minimum' (x : xs) = foldl min x xs
+
+-- | winner
+-- >>> winner max [1, 2, -3]
+-- 2
+winner :: (a -> a -> a) -> [a] -> a
+winner _ []       = error "winner: empty list"
+winner f (x : xs) = foldl f x xs
+
+-- c.
+-- | nub
+-- >>> nub [1,2,1,3,1,2,1,4]
+-- [1,2,3,4]
+nub :: Eq a => [a] -> [a]
+nub []       = []
+nub (x : xs) = x : nub (filter (x /=) xs)
+
+-- d.
+-- | dotProduct
+-- >>> dotProduct [1,2,3] [4,5,-6]
+-- -4
+dotProduct :: [Int] -> [Int] -> Int
+dotProduct = (sum .) . zipWith (*)
+
+-- 7.
 showInt :: Int -> String
 showInt 0         = "0"
 showInt n | n < 0 = '-' : showInt (-n)
@@ -161,7 +188,7 @@ showLst _ []       = ""
 showLst f [x     ] = f x
 showLst f (x : xs) = f x ++ ", " ++ showLst f xs
 
--- 10.
+-- 8.
 divide :: Int -> String -> String
 divide n = unlines . concatMap (\v -> if null v then [[]] else go v) . lines
   where
@@ -172,25 +199,9 @@ divide n = unlines . concatMap (\v -> if null v then [[]] else go v) . lines
 main10 :: IO ()
 main10 = interact $ divide 3
 
--- 11.
--- a.
-incAll :: [[Int]] -> [[Int]]
-incAll = map $ map (1 +)
-
--- b.
-factorial' :: Int -> Int
-factorial' n = foldr (*) 1 [1 .. n]
-factorial'' :: Int -> Int
-factorial'' n = product [1 .. n]
-
-concat' :: [[a]] -> [a]
-concat' = foldr (++) []
-concat'' :: [[a]] -> [a]
-concat'' = foldl (++) []
-
--- test using
--- :set +s
--- :unset +s
-
--- c.
--- ad 5.
+{-
+To test the performance in ghci use:
+:set +s
+To stop:
+:unset +s
+-}
