@@ -1,4 +1,4 @@
-module Tests where -- required by doctest
+module LH0 where -- required by doctest
 import           Control.Arrow                  ( first )
 import           Data.Char
 

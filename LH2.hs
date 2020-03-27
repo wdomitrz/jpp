@@ -1,4 +1,4 @@
-module Tests where -- required by doctest
+module LH2 where -- required by doctest
 import           Data.Char                      ( isDigit )
 import           Text.Read                      ( readEither )
 
@@ -58,8 +58,17 @@ data Tree a = Empty | Node a (Tree a) (Tree a) deriving (Ord)
 
 -- a.
 instance Show a => Show (Tree a) where
-    show Empty          = ""
-    show (Node x t1 t2) = show x ++ " (" ++ show t1 ++ ") (" ++ show t2 ++ ")"
+    showsPrec d Empty = showParen (d > app_prec) $ showString "Empty"
+        where app_prec = 10
+    showsPrec d (Node x t1 t2) =
+        showParen (d > up_prec)
+            $ showString "Node "
+            . showsPrec (up_prec + 1) x
+            . showString " "
+            . showsPrec (up_prec + 1) t1
+            . showString " "
+            . showsPrec (up_prec + 1) t2
+        where up_prec = 5
 
 instance Eq a => Eq (Tree a) where
     Empty        == Empty           = True
@@ -193,7 +202,7 @@ instance Functor (Either' e) where
 -- b.
 -- | Functor Tree
 -- >>> fmap (+1) $ Node 1 Empty Empty
--- 2 () ()
+-- Node 2 Empty Empty
 instance Functor Tree where
     fmap _ Empty          = Empty
     fmap f (Node x t1 t2) = Node (f x) (fmap f t1) (fmap f t2)

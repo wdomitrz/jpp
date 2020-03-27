@@ -1,6 +1,7 @@
-module Tests where -- required by doctest
+module LH1 where -- required by doctest
 import           Control.Arrow                  ( first )
 import           Data.Char
+import           LH0                            ( inits )
 
 -- 1.
 triples :: Int -> [(Int, Int, Int)]
@@ -109,7 +110,7 @@ positions'' x = reverse . snd . foldl
 -- 5.
 -- a.
 -- | incAll
--- >>> incAll [[],[1],[1,2],[1,2,3]]
+-- >>> incAll $ inits [1..3]
 -- [[],[2],[2,3],[2,3,4]]
 incAll :: [[Int]] -> [[Int]]
 incAll = map $ map (1 +)
