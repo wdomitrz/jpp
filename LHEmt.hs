@@ -128,7 +128,7 @@ instance Monad m => Monad (MaybeT m) where
 instance MonadTrans MaybeT where
     lift = MaybeT . (Just <$>)
 
-instance MonadPlus m => MonadPlus (MaybeT m)
+instance Monad m => MonadPlus (MaybeT m)
 
 -- Needed for Monad
 instance Applicative m => Applicative (MaybeT m) where
