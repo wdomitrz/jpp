@@ -2,7 +2,7 @@ module LH2 where -- required by doctest
 import           Data.Char                      ( isDigit )
 import           Text.Read                      ( readEither )
 
--- 1.:q
+-- 1.
 elimMaybe :: c -> (a -> c) -> Maybe a -> c
 elimMaybe x _ Nothing  = x
 elimMaybe _ f (Just x) = f x
