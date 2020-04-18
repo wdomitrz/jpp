@@ -43,16 +43,13 @@ expVar :: Parser Exp
 expVar = EVar <$> parVar
 
 expAdd :: Parser Exp
-expAdd =
-    skipString "+" *> (EAdd <$> exp1) <*> exp2
+expAdd = skipString "+" *> (EAdd <$> exp1) <*> exp2
 
 expSub :: Parser Exp
-expSub =
-    skipString "-" *> (ESub <$> exp1) <*> exp2
+expSub = skipString "-" *> (ESub <$> exp1) <*> exp2
 
 expMul :: Parser Exp
-expMul =
-    skipString "*" *> (EMul <$> exp2) <*> exp3
+expMul = skipString "*" *> (EMul <$> exp2) <*> exp3
 
 exp0, exp1, exp2, exp3 :: Parser Exp
 exp0 = try expLet <|> exp1
