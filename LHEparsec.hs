@@ -2,8 +2,9 @@ module LHEparsec where
 import           Text.Parsec
 import           Text.Parsec.String
 import           Data.Functor                   ( void )
-import           Control.Monad                  ( forM_ )
-import           Control.Monad                  ( mfilter )
+import           Control.Monad                  ( forM_
+                                                , mfilter
+                                                )
 
 -- 1.
 -- c
@@ -35,9 +36,8 @@ expInt :: Parser Exp
 expInt = EInt . read <$> (skipSpaces *> many1 digit)
 
 parVar :: Parser String
-parVar =
-    skipSpaces
-        *> (mfilter (/= "let") ((:) <$> letter <*> many (try letter <|> digit)))
+parVar = skipSpaces
+    *> mfilter (/= "let") ((:) <$> letter <*> many (try letter <|> digit))
 
 expVar :: Parser Exp
 expVar = EVar <$> parVar
