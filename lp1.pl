@@ -32,7 +32,8 @@ wnuk(Wnuk, Dziadek) :- rodzic(Dziadek, Rodzic), rodzic(Rodzic, Wnuk).
 przodek(Rodzic, Dziecko) :- rodzic(Rodzic, Dziecko).
 przodek(Przodek, Potomek) :- rodzic(Rodzic, Potomek), przodek(Przodek, Rodzic).
 % slower version.
-% przodek(Przodek, Potomek) :- przodek(Dziecko, Potomek), rodzic(Przodek, Dziecko).
+% przodek(Przodek, Potomek) :- przodek(Dziecko, Potomek),
+%     rodzic(Przodek, Dziecko).
 
 % 2.
 % dziecko(Dziecko, Matka, Ojciec, płeć).
@@ -47,10 +48,14 @@ dziecko(jan, ela, jakub, ch).
 syn(Dziecko, Matka, Ojciec) :- dziecko(Dziecko, Matka, Ojciec, ch).
 corka(Dziecko, Matka, Ojciec) :- dziecko(Dziecko, Matka, Ojciec, dz).
 dziecko_v2(Dziecko, Matka, Ojciec) :- dziecko(Dziecko, Matka, Ojciec, _).
-wnuczka(Dziecko, Dziadek) :- corka(Dziecko, Matka, _), dziecko_v2(Matka, _, Dziadek).
-wnuczka(Dziecko, Dziadek) :- corka(Dziecko, _, Ojciec), dziecko_v2(Ojciec, _, Dziadek).
-wnuczka(Dziecko, Babcia) :- corka(Dziecko, Matka, _), dziecko_v2(Matka, Babcia, _).
-wnuczka(Dziecko, Babcia) :- corka(Dziecko, _, Ojciec), dziecko_v2(Ojciec, Babcia, _).
+wnuczka(Dziecko, Dziadek) :- corka(Dziecko, Matka, _),
+    dziecko_v2(Matka, _, Dziadek).
+wnuczka(Dziecko, Dziadek) :- corka(Dziecko, _, Ojciec),
+    dziecko_v2(Ojciec, _, Dziadek).
+wnuczka(Dziecko, Babcia) :- corka(Dziecko, Matka, _),
+    dziecko_v2(Matka, Babcia, _).
+wnuczka(Dziecko, Babcia) :- corka(Dziecko, _, Ojciec),
+    dziecko_v2(Ojciec, Babcia, _).
 
 % 3.
 % Natural numbers - z and s/1.
@@ -58,11 +63,10 @@ wnuczka(Dziecko, Babcia) :- corka(Dziecko, _, Ojciec), dziecko_v2(Ojciec, Babcia
 nat(z).
 nat(s(N)) :- nat(N).
 % b) plus(x, y, z) wtw, gdy x + y = z
-plus1(X, z, X).
-plus1(X, s(Y), Z) :- plus1(s(X), Y, Z).
+plus1(z, X, X).
+plus1(s(X), Y, Z) :- plus1(X, s(Y), Z).
 % c) minus(x, y, z) wtw, gdy x - y = z
-minus1(X, z, X).
-minus1(s(X), s(Y), Z) :- minus1(X, Y, Z).
+minus1(X, Y, Z) :- plus1(Y, Z, X).
 % d) fib(k, n) wtw, gdy n = k-ta liczba Fibonacciego
 % fib_acc(k, f_k, f_{k+1})
 fib_acc(z, z, s(z)).
@@ -80,7 +84,7 @@ lista([_ | L]) :- lista(L).
 % b) pierwszy(E, L) wtw, gdy E jest pierwszym elementem L
 pierwszy(X, [X | _]).
 % c) ostatni(E, L) wtw, gdy E jest ostatnim elementem L
-ostatni(X, [X | []]).
+ostatni(X, [X]).
 ostatni(X, [_ | L]) :- ostatni(X, L).
 % d) element(E, L) wtw, gdy E jest (dowolnym) elementem L
 %    (czyli member/2)
@@ -93,8 +97,7 @@ element(E, [_ | L]) :- element(E, L).
 scal([], L1, L1).
 scal([X | L1], L2, [X | L3]) :- scal(L1, L2, L3).
 % e') intersect(Z1,Z2) wtw, gdy zbiory (listy) Z1 i Z2 mają niepuste przecięcie
-intersect([X | _], L) :- element(X, L).
-intersect([_ | L1], L2) :- intersect(L2, L1). % The swap is needed to make both intersect(X, []) and intersect([], X) terminate!
+intersect(L1, L2) :- element(X, L1), element(X, L2).
 % f) podziel(Lista, NieParz, Parz) == podział danej listy na dwie
 %    podlisty zawierające kolejne elementy (odpowiednio) z parzystych
 %    (nieparzystych) pozycji
@@ -113,7 +116,8 @@ podlista(L1, L2) :- nonepty_sublist(L1, L2).
 %    (preferowane rozwiązanie: każdy podciąg wygenerowany jeden raz)
 podciag([], _).
 podciag([X | L1], [X | L2]) :- podciag(L1, L2).
-podciag([X | L1], [_ | L2]) :- podciag([X | L1], L2). % We need to be sure that first list is not empty to not generate subsequences multiple times.
+podciag([X | L1], [_ | L2]) :- podciag([X | L1], L2). % We need to be sure that
+    % first list is not empty to not generate subsequences multiple times.
 % i) wypisz(L) == czytelne wypisanie elementów listy L, z zaznaczeniem
 %    jeśli lista pusta (np. elementy oddzielane przecinkami, po
 %    ostatnim elemencie kropka)
@@ -132,10 +136,12 @@ show_list_elems([X | L]) :- write(X), write(', '), show_list_elems(L).
 % j) sortowanie przez wstawianie:
 %      insertionSort(Lista, Posortowana),
 %      insert(Lista, Elem, NowaLista)
-insertionSort([], []).
-insertionSort([X | L1], L3) :- insertionSort(L1, L2), insert(L2, X, L3).
+insertionSort(L, Res) :- insertionSortHelper(L, [], Res).
+insertionSortHelper([], Acc, Acc).
+insertionSortHelper([X | L], Acc, Res) :- insert(Acc, X, NewAcc),
+    insertionSortHelper(L, NewAcc, Res).
 insert([], E, [E]).
-insert([X | L1], E, [E | [X | L1]]) :- X >= E.
+insert([X | L1], E, [E, X | L1]) :- X >= E.
 insert([X | L1], E, [X | L2]) :- X < E, insert(L1, E, L2).
 % k) zadanie domowe:
 %       srodek(E, L) wtw, gdy E jest środkowym elementem L
