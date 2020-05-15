@@ -20,35 +20,30 @@ palindrom(S) :- odwroc(S, S). % no need to rewrite odwroc
 % (Uwaga: bez arytmetyki!) dwa warianty: (*) n > 0 (**) n >= 0 (np. slowo([a,a,b,b]) - sukces)
 slowo_v1(L) :- slowo_v1(L, []).
 slowo_v1([a | L], A) :- !, slowo_v1(L, [b | A]).
-% slowo_v1([b | A], [b | A]).
-slowo_v1([], []) :- !, false.
-slowo_v1(A, A).
+slowo_v1([b | A], [b | A]).
 slowo_v2(L) :- slowo_v2(L, []).
 slowo_v2([a | L], A) :- !, slowo_v2(L, [b | A]).
 slowo_v2(A, A).
 % g) slowo(Zdanie, Reszta) == Zdanie = Slowo * Reszta, Slowo - jw. (np. slowo([a,a,b,b,c,d], [c,d]) - sukces)
-slowo_g(Z, R) :- slowo_g(Z, [], R).
-slowo_g([a | Z], A, R) :- slowo_g(Z, [b | A], R).
-slowo_g(Z, A, R) :- append(A, R, Z).
-% Version with nonempty Slowo
-slowo_g2(Z, R) :- slowo_g2(Z, [], R).
-slowo_g2([a | Z], A, R) :- !, slowo_g2(Z, [b | A], R).
-slowo_g2(Z, A, R) :- append(A, R, Z).
+slowo_g([a | Z], R) :- slowo_g(Z, [b | R]).
+slowo_g(R, R).
 % Slower, but shorter version
-% slowo_cannot_be_empty(Z, R) :- append(A, R, Z), slowo_v1(A).
+% slowo_g_slow(Z, R) :- append(A, R, Z), slowo_v2(A).
 % h) flagaPolska(Lista, Flaga) wtw, gdy Flaga jest posortowaną listą Lista, złożoną ze stałych b,c
 % (np. flagaPolska([b,c,b,c], [b,b,c,c]) - sukces)
-flagaPolska(L, F) :- flagaPolska(L, AB, AC), append(AB, AC, F).
-flagaPolska([b | L], AB, AC) :- flagaPolska(L, [b | AB], AC).
-flagaPolska([c | L], AB, AC) :- flagaPolska(L, AB, [c | AC]).
+flagaPolska(L, F) :- flagaPolska(L, [], F).
+flagaPolska([b | L], A, [b | F]) :- flagaPolska(L, A, F).
+flagaPolska([c | L], A, F) :- flagaPolska(L, [c | A], F).
+flagaPolska([], A, A).
 % i) ew. flagaHolenderska(ListaRWB, RWB) (flaga: red-white-blue)
-flagaHolenderska(L, RWB) :- flagaHolenderska(L, AR, AW, AB), append(AW, AB, WB), append(AR, WB, RWB).
-flagaHolenderska(L, AR, AW, AB) :- flagaHolenderska(L, AR, AW, AB).
-flagaHolenderska(L, AR, AW, AB) :- flagaHolenderska(L, AR, AW, AB).
-flagaHolenderska(L, AR, AW, AB) :- flagaHolenderska(L, AR, AW, AB).
+flagaHolenderska(L, RWB) :- flagaHolenderska(L, A, A, RWB).
+flagaHolenderska([w | L], AW, AB, RWB) :- flagaHolenderska(L, [w | AW], AB, RWB).
+flagaHolenderska([b | L], AW, [b | AB], RWB) :- flagaHolenderska(L, AW, AB, RWB).
+flagaHolenderska([r | L], AW, AB, [r | RWB]) :- flagaHolenderska(L, AW, AB, RWB).
+flagaHolenderska([], A, [], A).
 % j) quickSort(L, S) wtw, gdy S jest wynikiem sortowania L (algorytm QuickSort)
 split([], _, [], []).
-split([Y | L], X, [Y | LTX], RTX) :- X >= Y, split(L, X, LTX, RTX).
+split([Y | L], X, [Y | LTX], RTX) :- X >= Y, !, split(L, X, LTX, RTX).
 split([Y | L], X, LTX, [Y | RTX]) :- Y > X, split(L, X, LTX, RTX).
 %     wersja bez akumulatora
 quickSort_noacc([], []).
@@ -66,9 +61,8 @@ quickSort([X | L], A, S) :-
     quickSort(LTX, [X | GTXS], S).
 % k) flatten(L, F) wtw, gdy L jest zagnieżdżoną listą list, których elementami są liczby całkowite, a F jest spłaszczoną listą L (np. flatten([1,[[[[2,[3]]], 4], 5]], [1,2,3,4,5]) - sukces)
 flatten(L, F) :- flatten(L, [], F).
-% ! are necessary not to put lists inside the flatten list.
 flatten([], A, A) :- !.
 flatten([X | L], A, F) :- !,
     flatten(L, A, LA),
     flatten(X, LA, F).
-flatten(X, A, [X | A]).
+flatten(X, A, [X | A]) :- integer(X).
