@@ -31,9 +31,7 @@ liscie(T, S) :-
 liscie(nil, A, A).
 liscie(wezel(nil, X, nil), A, [X|A]).
 liscie(wezel(L, _, R), A, S) :-
-    \+ ( L=nil,
-         R=nil
-       ),
+    (L, R) \= (nil, nil),
     liscie(R, A, AR),
     liscie(L, AR, S).
 % g) sortBST(L, S) wtw, gdy S = lista posortowana, przy użyciu drzew BST
