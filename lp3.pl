@@ -1,3 +1,4 @@
+% 1.
 % a) drzewo(D) wtw, gdy D jest drzewem binarnym
 drzewo(nil).
 drzewo(wezel(L, _, R)) :-
@@ -29,12 +30,14 @@ stworzBST([X|S], A, T) :-
 liscie(T, S) :-
     liscie(T, [], S).
 liscie(nil, A, A).
-liscie(wezel(nil, X, nil), A, [X|A]).
+liscie(wezel(nil, X, nil), A, [X|A]) :- !.
 liscie(wezel(L, _, R), A, S) :-
-    (L, R) \= (nil, nil),
+    (L, R)\=(nil, nil),
     liscie(R, A, AR),
     liscie(L, AR, S).
 % g) sortBST(L, S) wtw, gdy S = lista posortowana, przy użyciu drzew BST
 sortBST(L, S) :-
     stworzBST(L, T),
     wypiszBST(T, S).
+
+% 2.
