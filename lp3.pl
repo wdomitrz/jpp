@@ -41,3 +41,96 @@ sortBST(L, S) :-
     wypiszBST(T, S).
 
 % 2.
+% Expamples of graphs
+graf_1([kr(a, b), kr(a, c), kr(a, d), kr(b, e), kr(c, e)]).
+graf_2([kr(a, b), kr(b, c), kr(c, a), kr(c, d), kr(d, a)]).
+
+edge_1(a, b).
+edge_1(a, c).
+edge_1(a, d).
+edge_1(b, e).
+edge_1(c, e).
+
+edge_2(a, b).
+edge_2(b, c).
+edge_2(c, a).
+edge_2(c, d).
+edge_2(d, a).
+
+% Choosen graph
+edge(A, B) :-
+    edge_2(A, B).
+
+% a) connect(A,B), connect(Graf,A,B) wtw, gdy istnieje ścieżka z A do B.
+% Uwaga: ścieżka = niepusty (!) ciąg krawędzi
+% Here we consider DAGs
+connect(A, B) :-
+    edge(A, B).
+connect(A, B) :-
+    edge(A, C),
+    connect(C, B).
+
+connect(G, A, B) :-
+    member(kr(A, B), G).
+connect(G, A, B) :-
+    member(kr(A, C), G),
+    connect(G, C, B).
+% b) path(A,B,P) wtw, gdy P = opis ścieżki z A do B, tzn. P = [A, ..., B]
+% Here we consider DAGs
+path(A, B, [A, B]) :-
+    edge(A, B).
+path(A, B, [A|P]) :-
+    edge(A, C),
+    path(C, B, P).
+
+path(A, B, [A, B], G) :-
+    member(kr(A, B), G).
+path(A, B, [A|P], G) :-
+    member(kr(A, C), G),
+    path(C, B, P, G).
+% c) pathC(A,B,P) w dowolnym grafie skierowanym (cyklicznym)
+pathC(A, B, P) :-
+    pathC(A, B, P, []).
+pathCVis(A, B, [A, B], V) :-
+    \+ member(A, V), % we only accept the paths without repeating vertices
+                     % (including the first and the last vertices).
+    \+ member(B, V),
+    edge(A, B).
+pathCVis(A, B, [A|P], V) :-
+    edge(A, C),
+    \+ member(C, V),
+    pathCVis(C, B, P, [A|V]).
+
+pathC(A, B, P, G) :-
+    pathCVis(A, B, P, [], G).
+pathCVis(A, B, [A, B], V, G) :-
+    \+ member(A, V), % we only accept the paths without repeating vertices
+                     % (including the first and the last vertices).
+    \+ member(B, V),
+    member(kr(A, B), G).
+pathCVis(A, B, [A|P], V, G) :-
+    member(kr(A, C), G),
+    \+ member(C, V),
+    pathCVis(C, B, P, [A|V], G).
+
+% Inconsistency in the following solution:
+path_c(G, A, B, P) :-
+     path_c(G, [], A, B, P).
+path_c(G, _, A, B, [A, B]) :-
+     member(kr(A, B), G).
+path_c(G, V, A, B, [A | P]) :-
+     member(kr(A, C), G),
+     \+member(C, V),
+     path_c(G, [A | V], C, B, P).
+
+graf_3a([kr(a, b), kr(b, c), kr(c, d), kr(d, b)]).
+graf_3b([kr(b, a), kr(c, b), kr(d, c), kr(b, d)]).
+% graf_3a(G), path_c(G, a, b, [a, b, c, d, b]). - success
+% graf_3b(G), path_c(G, b, a, [b, d, c, b, a]). - failure
+
+% d) euler/? - czy dany graf jest grafem Eulera, czyli znalezienie (sprawdzenie) ścieżki Eulera (wprost z definicji):
+% ścieżka, która przechodzi przez każdą krawędź grafu dokładnie raz
+euler([kr(A, B)], [A, B]).
+euler(G, [A, B|P]) :-
+    select(kr(A, B), G, GB), % repleced remove_euler with select
+    euler(GB, [B|P]).
