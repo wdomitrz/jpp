@@ -39,6 +39,20 @@ liscie(wezel(L, _, R), A, S) :-
 sortBST(L, S) :-
     stworzBST(L, T),
     wypiszBST(T, S).
+% h) wszerz(D, L) wtw, gdy L = lista wszystkich wierzchołków wszerz
+% This implementation is ineffective!
+% The effective implementation is after the definitions of FIFO methods in this
+% file.
+% It is possible to better version of this function by dealing with the nil-s
+% earlier.
+wszerzIneff(T, S) :-
+    wszerzIneffQ([T], S).
+wszerzIneffQ([], []).
+wszerzIneffQ([nil|Q], S) :-
+    wszerzIneffQ(Q, S).
+wszerzIneffQ([wezel(L, E, R)|Q], [E|S]) :-
+    append(Q, [L, R], QLR),
+    wszerzIneffQ(QLR, S).
 
 % 2.
 % Expamples of graphs
@@ -115,13 +129,13 @@ pathCVis(A, B, [A|P], V, G) :-
 
 % Inconsistency in the following solution:
 path_c(G, A, B, P) :-
-     path_c(G, [], A, B, P).
+    path_c(G, [], A, B, P).
 path_c(G, _, A, B, [A, B]) :-
-     member(kr(A, B), G).
-path_c(G, V, A, B, [A | P]) :-
-     member(kr(A, C), G),
-     \+member(C, V),
-     path_c(G, [A | V], C, B, P).
+    member(kr(A, B), G).
+path_c(G, V, A, B, [A|P]) :-
+    member(kr(A, C), G),
+    \+ member(C, V),
+    path_c(G, [A|V], C, B, P).
 
 graf_3a([kr(a, b), kr(b, c), kr(c, d), kr(d, b)]).
 graf_3b([kr(b, a), kr(c, b), kr(d, c), kr(b, d)]).
@@ -134,3 +148,32 @@ euler([kr(A, B)], [A, B]).
 euler(G, [A, B|P]) :-
     select(kr(A, B), G, GB), % repleced remove_euler with select
     euler(GB, [B|P]).
+
+% Difference lists
+% 1. Implementacja kolejki FIFO, czyli:
+% a) init(Kolejka) - inicjalizacja kolejki (na pustą)
+init(Q-Q).
+% b) get(Elem, Kolejka, NowaKolejka) - pobranie
+get(E, QI-QT, QI1-QT) :-
+    \+ var(QI),
+    QI=[E|QI1].
+% c) put(Elem, Kolejka, NowaKolejka) - wstawienie
+put(E, QI-[E|QT], QI-QT).
+% d) empty(Kolejka) - czy kolejka pusta
+empty(QI-_) :-
+    var(QI).
+% 2. wszerz(DrzewoBinarne, ListaWierzchWszerz)
+wszerz(T, S) :-
+    init(Q),
+    put(T, Q, QT),
+    wszerzQ(QT, S).
+wszerzQ(Q, []) :-
+    empty(Q).
+wszerzQ(QO, S) :-
+    get(nil, QO, Q),
+    wszerzQ(Q, S).
+wszerzQ(QO, [E|S]) :-
+    get(wezel(L, E, R), QO, Q),
+    put(L, Q, QL),
+    put(R, QL, QLR),
+    wszerzQ(QLR, S).
