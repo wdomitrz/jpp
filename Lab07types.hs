@@ -1,4 +1,4 @@
-module LTypes where
+module Lam07types where
 import qualified Data.Map                      as Map
 import           Data.Map                       ( Map )
 import           Control.Monad.Trans.Except

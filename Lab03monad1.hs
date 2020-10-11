@@ -1,4 +1,4 @@
-module LM1 where -- required by doctest
+module Lam03monad1 where -- required by doctest
 import           Text.Read                      ( readEither )
 import           System.Environment             ( getArgs )
 import           Control.Monad                  ( when

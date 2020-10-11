@@ -1,4 +1,4 @@
-module ParsecTest where
+module Lab06parsingParcsecTest where
 import Text.ParserCombinators.Parsec
 import Data.Char(isDigit,digitToInt)
 

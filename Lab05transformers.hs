@@ -1,4 +1,4 @@
-module LHEmt where
+module Lab05transformers where
 import           Control.Monad.Trans.State
 import           Data.Char                      ( digitToInt
                                                 , isDigit

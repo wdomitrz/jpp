@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
-module LM2 where -- required by doctest
+module Lab04monad2 where -- required by doctest
 import qualified Data.Map                      as Map
 import           Data.Map                       ( (!)
                                                 , empty
@@ -8,11 +8,11 @@ import           Data.Map                       ( (!)
                                                 )
 import           Control.Monad.Reader
 import           Control.Monad.State     hiding ( State )
-import           LH2                            ( fromList
+import           Lab02haskell2                  ( fromList
                                                 , toList
                                                 , Tree(Empty, Node)
                                                 )
-import           LH1                            ( fibs )
+import           Lab01haskell1                  ( fibs )
 -- 1.
 {- | allPairs
 >>> allPairs [1,2,3] [4,5]

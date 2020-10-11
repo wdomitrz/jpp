@@ -1,7 +1,7 @@
-module LH1 where -- required by doctest
+module Lab01haskell1 where -- required by doctest
 import           Control.Arrow                  ( first )
 import           Data.Char
-import           LH0                            ( inits )
+import           Lab00haskell0                  ( inits )
 
 -- 1.
 triples :: Int -> [(Int, Int, Int)]

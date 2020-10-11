@@ -1,4 +1,4 @@
-module LHEparsec where
+module Lab06parsing where
 import           Text.Parsec
 import           Text.Parsec.String
 import           Data.Functor                   ( void )

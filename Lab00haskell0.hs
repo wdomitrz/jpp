@@ -1,4 +1,4 @@
-module LH0 where -- required by doctest
+module Lab00haskell0 where -- required by doctest
 import           Control.Arrow                  ( first )
 import           Data.Char
 

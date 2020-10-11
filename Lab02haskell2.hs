@@ -1,4 +1,4 @@
-module LH2 where -- required by doctest
+module Lab02haskell2 where -- required by doctest
 import           Data.Char                      ( isDigit )
 import           Text.Read                      ( readEither )
 

@@ -1,6 +1,6 @@
-module StateTParser2(Parser,runParser,item) where
+module Lab06parsingStateTParser2(Parser,runParser,item) where
 import Control.Monad.State
-import LHEmt (MaybeT(..))
+import Lab05transformers (MaybeT(..))
 import Control.Monad.Identity
 
 -- Use the StateT transformer on MaybeT on Identity

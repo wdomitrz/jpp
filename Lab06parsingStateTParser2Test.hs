@@ -1,8 +1,8 @@
-module StateTParser2Test where
+module Lab06parsingStateTParser2Test where
 import Data.Char(isDigit,digitToInt)
 import Control.Monad
 
-import StateTParser2
+import Lab06parsingStateTParser2
 
 pDigit1 :: Parser Int
 pDigit1 = item >>= test where
