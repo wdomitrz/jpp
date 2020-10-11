@@ -1,3 +1,6 @@
 [submodule "z1"]
 	path = z1
-	url = github:wdomitrz/jpp-z1
+	url = git@github.com:wdomitrz/jpp-z1.git
+[submodule "clbla"]
+	path = clbla
+	url = git@github.com:wdomitrz/clbla.git
