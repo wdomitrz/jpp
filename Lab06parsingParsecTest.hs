@@ -2,7 +2,7 @@ module Lab06parsingParcsecTest where
 import Text.ParserCombinators.Parsec
 import Data.Char(isDigit,digitToInt)
 
-run :: Parser a -> [Char] -> Either ParseError a
+run :: Parser a -> String -> Either ParseError a
 run p = parse p "(interactive)"
 -- run p s = parse p "(interactive)" s
 

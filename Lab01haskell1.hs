@@ -57,6 +57,7 @@ reverse' = foldl (flip (:)) []
 reverse'' :: [a] -> [a]
 reverse'' = go []  where
     go :: [a] -> [a] -> [a]
+    {- HLINT ignore "Use foldl" -}
     go ys []       = ys
     go ys (z : zs) = go (z : ys) zs
 
