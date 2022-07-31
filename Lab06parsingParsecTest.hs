@@ -3,17 +3,19 @@ import Text.ParserCombinators.Parsec
 import Data.Char(isDigit,digitToInt)
 
 run :: Parser a -> [Char] -> Either ParseError a
-run p s = parse p "(interactive)" s
+run p = parse p "(interactive)"
+-- run p s = parse p "(interactive)" s
 
 pDigit :: Parser Int
-pDigit = satisfy isDigit >>= return . digitToInt
+pDigit = digitToInt <$> satisfy isDigit
+-- pDigit = satisfy isDigit >>= return . digitToInt
 -- pDigit = fmap digitToInt digit
 
 pDigits :: Parser [Int]
 pDigits = many1 pDigit
 
 pNat :: Parser Integer
-pNat = fmap (foldl (\x y -> 10*x+(toInteger y)) 0) pDigits
+pNat = fmap (foldl (\x y -> 10*x + toInteger y) 0) pDigits
 
 pInt :: Parser Integer
 pInt = negative pNat <|> pNat where

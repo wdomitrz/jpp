@@ -26,6 +26,7 @@ readInts2 = foldr go (return []) . words
         go' :: Either String Int -> Either String Int
         go' =
             swapEither
+            {- HLINT ignore "Use <=<" -}
                 . (>>= (const $ return ("Not a number: " ++ s)))
                 . swapEither
 

@@ -121,6 +121,7 @@ incAll = map $ map (1 +)
 -- 120
 -- >>> factorial'' 5
 -- 120
+{- HLINT ignore "Use product" -}
 factorial' :: Int -> Int
 factorial' n = foldr (*) 1 [1 .. n]
 factorial'' :: Int -> Int
@@ -129,6 +130,7 @@ factorial'' n = product [1 .. n]
 -- | concat'
 -- >>> concat' [[1,2],[3],[4,5]]
 -- [1,2,3,4,5]
+{- HLINT ignore "Use concat" -}
 concat' :: [[a]] -> [a]
 concat' = foldr (++) []
 

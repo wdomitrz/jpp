@@ -16,7 +16,8 @@ char :: Char -> Parser Char
 char x = sat (==x)
 
 pDigit :: Parser Int
-pDigit = fmap digitToInt $ sat isDigit
+pDigit = digitToInt <$> sat isDigit
+-- pDigit = fmap digitToInt $ sat isDigit
 
 pDigits :: Parser [Int]
 pDigits = many pDigit

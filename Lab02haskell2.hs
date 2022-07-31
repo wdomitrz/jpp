@@ -222,7 +222,8 @@ instance Pointed Maybe where
     pure = return
 
 instance Pointed Tree where
-    pure = flip (flip Node Empty) Empty
+    pure = flip (`Node` Empty) Empty
+    -- pure = flip (flip Node Empty) Empty
 
 -- 6.
 infixl 4 <**>
